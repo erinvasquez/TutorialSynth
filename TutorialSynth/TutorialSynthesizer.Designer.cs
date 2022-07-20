@@ -24,24 +24,23 @@ namespace TutorialSynth {
         /// the contents of this method with the code editor.
         /// </summary>
         private void InitializeComponent() {
-            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.oscillator1 = new TutorialSynth.Oscillator();
             this.SuspendLayout();
             // 
-            // groupBox1
+            // oscillator1
             // 
-            this.groupBox1.Location = new System.Drawing.Point(100, 100);
-            this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(200, 100);
-            this.groupBox1.TabIndex = 0;
-            this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "groupBox1";
+            this.oscillator1.Location = new System.Drawing.Point(21, 23);
+            this.oscillator1.Name = "oscillator1";
+            this.oscillator1.Size = new System.Drawing.Size(200, 100);
+            this.oscillator1.TabIndex = 0;
+            this.oscillator1.TabStop = false;
             // 
             // TutorialSynthesizer
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(682, 507);
-            this.Controls.Add(this.groupBox1);
+            this.Controls.Add(this.oscillator1);
             this.KeyPreview = true;
             this.Name = "TutorialSynthesizer";
             this.Text = "TutorialSynthesizer";
@@ -52,7 +51,7 @@ namespace TutorialSynth {
 
         #endregion
 
-        private System.Windows.Forms.GroupBox groupBox1;
+        private Oscillator oscillator1;
     }
 }
 
