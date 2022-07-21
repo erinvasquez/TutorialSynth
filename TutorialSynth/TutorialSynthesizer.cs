@@ -17,6 +17,7 @@ using System.Windows.Forms;
 /// Uses WAV format
 /// </summary>
 namespace TutorialSynth {
+
     public partial class TutorialSynthesizer : Form {
 
         /// <summary>
@@ -29,7 +30,10 @@ namespace TutorialSynth {
         /// </summary>
         private const short BITS_PER_SAMPLE = 16;
 
-
+        private Random random = new Random();
+        private short[] wave = new short[SAMPLE_RATE];
+        private byte[] binaryWave = new byte[SAMPLE_RATE * sizeof(short)];
+        private float frequency;
 
         public TutorialSynthesizer() {
 
@@ -49,13 +53,14 @@ namespace TutorialSynth {
             // Generate a second of audio
             // as in generate enough samples of type short, specifically 44,1000 (or whatever it is for your system)
             // 
-
+            /*
             Random random = new Random();
             short[] wave = new short[SAMPLE_RATE];
             byte[] binaryWave = new byte[SAMPLE_RATE * sizeof(short)];
 
             float frequency;
-
+            */
+             
             // Decide what frequency to play using our alphabet keys (and a few more) on the keyboard
 
             // Take advice from this later
@@ -140,10 +145,11 @@ namespace TutorialSynth {
                     frequency = 277.18f;
                     break;
                 default:
-                    return;
+                    // Don't change the frequency just yet?
+                    break;
             }
 
-
+            Console.WriteLine($"Frequency is ", frequency);
 
 
 
@@ -264,7 +270,6 @@ namespace TutorialSynth {
 
 
         }
-
     }
 
 

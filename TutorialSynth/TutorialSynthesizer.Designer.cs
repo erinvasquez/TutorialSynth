@@ -29,7 +29,7 @@ namespace TutorialSynth {
             // 
             // oscillator1
             // 
-            this.oscillator1.Location = new System.Drawing.Point(21, 23);
+            this.oscillator1.Location = new System.Drawing.Point(93, 77);
             this.oscillator1.Name = "oscillator1";
             this.oscillator1.Size = new System.Drawing.Size(200, 100);
             this.oscillator1.TabIndex = 0;
@@ -37,9 +37,7 @@ namespace TutorialSynth {
             // 
             // TutorialSynthesizer
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(682, 507);
+            this.ClientSize = new System.Drawing.Size(737, 456);
             this.Controls.Add(this.oscillator1);
             this.KeyPreview = true;
             this.Name = "TutorialSynthesizer";
@@ -50,7 +48,6 @@ namespace TutorialSynth {
         }
 
         #endregion
-
         private Oscillator oscillator1;
     }
 }
