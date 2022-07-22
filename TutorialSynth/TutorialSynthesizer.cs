@@ -33,7 +33,7 @@ namespace TutorialSynth {
         private Random random = new Random();
         private short[] wave = new short[SAMPLE_RATE];
         private byte[] binaryWave = new byte[SAMPLE_RATE * sizeof(short)];
-        private float frequency;
+        private float frequency = 220f;
 
         public TutorialSynthesizer() {
 
@@ -248,18 +248,37 @@ namespace TutorialSynth {
                 short blockAlign = (short)BITS_PER_SAMPLE / 8; // cast to short "If you perform division on a short it converts to int as you can't perform arithmetic on a short"
                 int subChunkTwoSize = SAMPLE_RATE * blockAlign;
 
+                // ChunkID
                 binaryWriter.Write(new[] { 'R', 'I', 'F', 'F' });
+                
+                // 36 + (8 + SubChunk1Sie) + (8 + Subchunk2Size)
+                // This is the size of the rest of the chunk following this number. This
+                // is the size of the entire file in bytes minus 8 bytes for the two fields
+                // not included in this count:
+                // ChunkID and ChunkSize.
                 binaryWriter.Write(36 + subChunkTwoSize);
                 binaryWriter.Write(new[] { 'W', 'A', 'V', 'E', 'f', 'm', 't', ' ' });
+                // "16 for PCM. This is the sieze of the rest of the Subchunk which follows
+                // this number"
                 binaryWriter.Write(16);
                 binaryWriter.Write((short)1);
+                // NUmChannels, Mono is 1 Stereo is 2, etc
                 binaryWriter.Write((short)1);
+                // SampleRate, 8800, 44100, etc.
                 binaryWriter.Write(SAMPLE_RATE);
+                // ByteRate == SampleRate * NumChannels * BitsPerSample/8
                 binaryWriter.Write(SAMPLE_RATE * blockAlign);
+                // BlockAlign == NumChannels * BitsPerSample/8
+                // The number of bytes for one sample including all channels. Wonder what
+                // happens when this number isn't an integer
                 binaryWriter.Write(blockAlign);
+                // 8 bits = 8, 16 bits = 16, etc
                 binaryWriter.Write(BITS_PER_SAMPLE);
+                // Subchunk2ID
                 binaryWriter.Write(new[] { 'd', 'a', 't', 'a' });
+                // Subchunk2Size == NumSamples * NumChannels * BitsPerSample/8
                 binaryWriter.Write(subChunkTwoSize);
+                // Data - The actual sound data.
                 binaryWriter.Write(binaryWave);
                 memoryStream.Position = 0;
 
