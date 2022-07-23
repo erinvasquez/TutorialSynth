@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using NAudio.CoreAudioApi; // Using NAudio for this one
 
 /// <summary>
 /// From G223 Production's Youtube Video Tutorial
@@ -38,6 +39,10 @@ namespace TutorialSynth {
         public TutorialSynthesizer() {
 
             InitializeComponent();
+
+            MMDeviceEnumerator en = new MMDeviceEnumerator();
+            var devices = en.EnumerateAudioEndPoints(DataFlow.All, DeviceState.Active);
+            comboBox1.Items.AddRange(devices.ToArray());
 
         }
 
@@ -287,6 +292,39 @@ namespace TutorialSynth {
 
 
 
+
+        }
+
+        private void comboBox1_SelectedIndexChanged(object sender, EventArgs e) {
+
+        }
+
+        private void progressBar1_Click(object sender, EventArgs e) {
+
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void timer1_Tick(object sender, EventArgs e) {
+
+            if(comboBox1.SelectedItem != null) {
+                var singledevice = (MMDevice)comboBox1.SelectedItem;
+                
+                // Change 
+                progressBar1.Value = (int)(singledevice.AudioMeterInformation.MasterPeakValue * 100);
+                
+                Console.WriteLine($"", progressBar1.Value);
+
+                label1.Text = ((int)(singledevice.AudioMeterInformation.MasterPeakValue * 100)).ToString();
+
+                // tYPING LIKE THIS AND FIXING IT SOMEHOW. // ==> like this..
+                // Tying like CIA AND THEN THIS HAPPENS. // ==> CIA and then this happen
+                // everything highlighted has all capatalization reversed 100%
+
+            }
 
         }
     }
