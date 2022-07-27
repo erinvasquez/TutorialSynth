@@ -11,9 +11,15 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using NAudio.CoreAudioApi; // Using NAudio for this one
 
+
+
 /// <summary>
 /// From G223 Production's Youtube Video Tutorial
 /// https://www.youtube.com/watch?v=fp1Snqq9ovw&t=1053s&ab_channel=G223Productions
+/// 
+/// Make a design doc first, that way everyone knows what's happening before
+/// we're done.
+/// 
 /// 
 /// Uses WAV format
 /// </summary>

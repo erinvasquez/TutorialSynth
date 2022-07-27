@@ -9,12 +9,39 @@ namespace TutorialSynth {
     class MusicTheory {
 
 
+        /// <summary>
+        /// Move this to a music note class? It comes from it originially
+        /// Get Half Steps from A4 in order to calculate Equal Temperament Frequency (piano freq to play)
+        /// given the note's name and octave
+        /// </summary>
+        /// <param name="_noteName"></param>
+        /// <param name="octave"></param>
+        /// <returns></returns>
+        public HalfStepsFromA4 GetHalfStepsFromA4(SharpNotes _noteName, int octave) {
+
+
+
+            return (HalfStepsFromA4)System.Enum.Parse(typeof(HalfStepsFromA4), (_noteName.ToString().ToUpper() + octave.ToString()));
+        }
+
+        /// <summary>
+        /// Get Piano Equal Temperament Frequency given a note's name and octave
+        /// number
+        /// </summary>
+        /// <param name="_noteName"></param>
+        /// <param name="octave"></param>
+        /// <returns></returns>
+        public double GetETFrequency(SharpNotes _noteName, int octave) {
+            double aForForty = 440.0;
+
+            double a = Math.Pow((double)2, (double)(1 / 12));
+
+            return aForForty * Math.Pow(a, (double) GetHalfStepsFromA4(_noteName, octave));
+
+        }
 
         public double GetETFrequencyFromPianoKey(PianoKeys key) {
             double aForForty = 440.0;
-
-            //float a = Mathf.Pow(2f, (1f / 12f));
-
 
             double a = Math.Pow((double) 2, (double) (1 / 12));
 
