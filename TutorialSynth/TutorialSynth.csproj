@@ -94,6 +94,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="MusicTheory.cs" />
     <Compile Include="Oscillator.cs">
       <SubType>Component</SubType>
     </Compile>

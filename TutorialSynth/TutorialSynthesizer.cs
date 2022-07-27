@@ -31,11 +31,19 @@ namespace TutorialSynth {
         /// </summary>
         private const short BITS_PER_SAMPLE = 16;
 
-        private Random random = new Random();
-        private short[] wave = new short[SAMPLE_RATE];
-        private byte[] binaryWave = new byte[SAMPLE_RATE * sizeof(short)];
-        private float frequency = 220f;
+        // Default code plays enough samples/second to play one second of audio
+        // since it literally uses a 44.1 khz (?) sample rate
+        private short playTimeInSeconds = 16;
 
+        private Random random;
+        private short[] wave;
+        private byte[] binaryWave;
+
+
+        /// <summary>
+        /// Initialize our stuff,
+        /// Add a device enumerator to detect au
+        /// </summary>
         public TutorialSynthesizer() {
 
             InitializeComponent();
@@ -44,147 +52,58 @@ namespace TutorialSynth {
             var devices = en.EnumerateAudioEndPoints(DataFlow.All, DeviceState.Active);
             comboBox1.Items.AddRange(devices.ToArray());
 
+
         }
 
         /// <summary>
-        /// Is called when we detect a keyboard key go down
+        /// Called by some process to play exactly one second of a
+        /// stream of WAV audio at the desire frequency
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void TutorialSynthesizer_KeyDown(object sender, KeyEventArgs e) {
-
-            //MessageBox.Show("Key Down event detected");
-
-            // Generate a second of audio
-            // as in generate enough samples of type short, specifically 44,1000 (or whatever it is for your system)
-            // 
-            /*
-            Random random = new Random();
-            short[] wave = new short[SAMPLE_RATE];
-            byte[] binaryWave = new byte[SAMPLE_RATE * sizeof(short)];
-
-            float frequency;
-            */
-             
-            // Decide what frequency to play using our alphabet keys (and a few more) on the keyboard
-
-            // Take advice from this later
-            // https://stackoverflow.com/questions/19330717/less-than-greater-than-keys-enumeration-in-c-sharp
-            switch (e.KeyCode) {
-                case Keys.Z:
-                    frequency = 65.41f; // about C2;
-                    break;
-                case Keys.X:
-                    frequency = 69.30f;
-                    break;
-                case Keys.C:
-                    frequency = 73.42f;
-                    break;
-                case Keys.V:
-                    frequency = 77.78f;
-                    break;
-                case Keys.B:
-                    frequency = 82.41f;
-                    break;
-                case Keys.N:
-                    frequency = 87.31f;
-                    break;
-                case Keys.M:
-                    frequency = 92.5f;
-                    break;
-                case Keys.A:
-                    frequency = 98f;
-                    break;
-                case Keys.S:
-                    frequency = 103.83f;
-                    break;
-                case Keys.D:
-                    frequency = 110f;
-                    break;
-                case Keys.F:
-                    frequency = 116.54f;
-                    break;
-                case Keys.G:
-                    frequency = 123.47f;
-                    break;
-                case Keys.H:
-                    frequency = 130.83f;
-                    break;
-                case Keys.J:
-                    frequency = 138.59f;
-                    break;
-                case Keys.K:
-                    frequency = 146.83f;
-                    break;
-                case Keys.L:
-                    frequency = 155.56f;
-                    break;
-                case Keys.Q:
-                    frequency = 164.81f;
-                    break;
-                case Keys.W:
-                    frequency = 174.61f;
-                    break;
-                case Keys.E:
-                    frequency = 185f;
-                    break;
-                case Keys.R:
-                    frequency = 196f;
-                    break;
-                case Keys.T:
-                    frequency = 207.65f;
-                    break;
-                case Keys.Y:
-                    frequency = 220f;
-                    break;
-                case Keys.U:
-                    frequency = 233.08f;
-                    break;
-                case Keys.I:
-                    frequency = 246.94f;
-                    break;
-                case Keys.O:
-                    frequency = 261.63f;
-                    break;
-                case Keys.P:
-                    frequency = 277.18f;
-                    break;
-                default:
-                    // Don't change the frequency just yet?
-                    break;
-            }
-
-            Console.WriteLine($"Frequency is ", frequency);
+        private void PlayOneSecondFrequency(float _frequency) {
+            random = new Random();
+            wave = new short[SAMPLE_RATE * playTimeInSeconds];
+            binaryWave = new byte[SAMPLE_RATE * sizeof(short) * playTimeInSeconds];
 
 
 
-            //
-            foreach(Oscillator oscillator in this.Controls.OfType<Oscillator>()) {
-                int samplesPerWaveLength = (int)(SAMPLE_RATE / frequency);
+            // 1) Get the frequency we have prepared
+            // if it comes from a music note of some sort, convert it to Hz
+
+            // For each oscillator
+            // Calculate the wave data that we'll be writing to WAV format
+
+            // Use Buffer.BlockCopy to split our short values into bytes for a byte wave array
+
+            // use a memory stream and binary writer to write our binary wave sample array
+            // and output it to a soundplayer
+
+
+            foreach (Oscillator oscillator in this.Controls.OfType<Oscillator>()) {
+                int samplesPerWaveLength = (int)(SAMPLE_RATE / _frequency);
                 short ampStep = (short)((short.MaxValue * 2) / samplesPerWaveLength);
                 short tempSample;
 
 
-                switch(oscillator.Waveform) {
+                switch (oscillator.Waveform) {
 
                     case WaveForm.Sine:
 
-                        for (int i = 0; i < SAMPLE_RATE; i++) {
-                            wave[i] = Convert.ToInt16(short.MaxValue * Math.Sin(((Math.PI * 2 * frequency) / SAMPLE_RATE) * i));
+                        for (int i = 0; i < SAMPLE_RATE * playTimeInSeconds; i++) {
+                            wave[i] = Convert.ToInt16(short.MaxValue * Math.Sin(((Math.PI * 2 * _frequency) / SAMPLE_RATE) * i));
                         }
 
                         break;
                     case WaveForm.Square:
 
-                        for (int i = 0; i < SAMPLE_RATE; i++) {
-                            wave[i] = Convert.ToInt16(short.MaxValue * Math.Sign(Math.Sin(((Math.PI * 2 * frequency) / SAMPLE_RATE) * i)));
+                        for (int i = 0; i < SAMPLE_RATE * playTimeInSeconds; i++) {
+                            wave[i] = Convert.ToInt16(short.MaxValue * Math.Sign(Math.Sin(((Math.PI * 2 * _frequency) / SAMPLE_RATE) * i)));
                         }
 
                         break;
 
                     case WaveForm.Saw:
 
-                        for (int i = 0; i < SAMPLE_RATE; i++) {
+                        for (int i = 0; i < SAMPLE_RATE * playTimeInSeconds; i++) {
 
                             tempSample = -short.MaxValue;
 
@@ -203,13 +122,13 @@ namespace TutorialSynth {
 
                         tempSample = -short.MaxValue;
 
-                        for(int i = 0; i < SAMPLE_RATE; i++) {
+                        for (int i = 0; i < SAMPLE_RATE * playTimeInSeconds ; i++) {
 
-                            if(Math.Abs(tempSample + ampStep) > short.MaxValue) {
+                            if (Math.Abs(tempSample + ampStep) > short.MaxValue) {
                                 ampStep = (short)-ampStep;
                                 wave[i++] = Convert.ToInt16(tempSample);
                             }
-                            
+
                             tempSample += ampStep;
                             wave[i] = Convert.ToInt16(tempSample);
                         }
@@ -218,7 +137,7 @@ namespace TutorialSynth {
 
                     case WaveForm.Noise:
 
-                        for(int i = 0; i < SAMPLE_RATE; i++) {
+                        for (int i = 0; i < SAMPLE_RATE * playTimeInSeconds; i++) {
                             wave[i] = (short)random.Next(-short.MaxValue, short.MaxValue);
                         }
 
@@ -227,35 +146,25 @@ namespace TutorialSynth {
 
                 }
 
-                /*
-                // Fill these values with data
-                for (int i = 0; i < SAMPLE_RATE; i++) {
 
-                    // https://docs.microsoft.com/en-us/archive/blogs/dawate/intro-to-audio-programming-part-3-synthesizing-simple-wave-audio-using-c
-                    // Amplitude * sin(angular freq) * t
-                    wave[i] = Convert.ToInt16(short.MaxValue * Math.Sin(((Math.PI * 2 * frequency) / SAMPLE_RATE) * i));
-
-                }
-                */
+                // https://docs.microsoft.com/en-us/archive/blogs/dawate/intro-to-audio-programming-part-3-synthesizing-simple-wave-audio-using-c
 
             }
 
 
-
-           
-
             Buffer.BlockCopy(wave, 0, binaryWave, 0, wave.Length * sizeof(short));
+
 
             // http://soundfile.sapp.org/doc/WaveFormat/
             using (MemoryStream memoryStream = new MemoryStream())
             using (BinaryWriter binaryWriter = new BinaryWriter(memoryStream)) {
 
                 short blockAlign = (short)BITS_PER_SAMPLE / 8; // cast to short "If you perform division on a short it converts to int as you can't perform arithmetic on a short"
-                int subChunkTwoSize = SAMPLE_RATE * blockAlign;
+                int subChunkTwoSize = SAMPLE_RATE * blockAlign * playTimeInSeconds;
 
                 // ChunkID
                 binaryWriter.Write(new[] { 'R', 'I', 'F', 'F' });
-                
+
                 // 36 + (8 + SubChunk1Sie) + (8 + Subchunk2Size)
                 // This is the size of the rest of the chunk following this number. This
                 // is the size of the entire file in bytes minus 8 bytes for the two fields
@@ -291,11 +200,28 @@ namespace TutorialSynth {
             }
 
 
+        }
 
+        /// <summary>
+        /// Is called when we detect a keyboard key go down
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void TutorialSynthesizer_KeyDown(object sender, KeyEventArgs e) {
+
+            // Get a frequency from the key we pressed then send it to PlayOneSecondFrequency()
+
+            PlayOneSecondFrequency(220f);
+
+            // https://stackoverflow.com/questions/19330717/less-than-greater-than-keys-enumeration-in-c-sharp
+            // http://soundfile.sapp.org/doc/WaveFormat/
 
         }
 
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e) {
+            // After we change our selection, change focus to another object to avoid typing into it
+            // when using the synthesizer
+            this.ActiveControl = label1;
 
         }
 
@@ -310,16 +236,14 @@ namespace TutorialSynth {
         /// <param name="e"></param>
         private void timer1_Tick(object sender, EventArgs e) {
 
-            if(comboBox1.SelectedItem != null) {
+            if (comboBox1.SelectedItem != null) {
                 var singledevice = (MMDevice)comboBox1.SelectedItem;
-                
+
                 // Change 
                 progressBar1.Value = (int)(singledevice.AudioMeterInformation.MasterPeakValue * 100);
-                
-                Console.WriteLine($"", progressBar1.Value);
+                label1.Text = progressBar1.Value.ToString();
 
-                label1.Text = ((int)(singledevice.AudioMeterInformation.MasterPeakValue * 100)).ToString();
-
+                // *** SIDE NOTE ***
                 // tYPING LIKE THIS AND FIXING IT SOMEHOW. // ==> like this..
                 // Tying like CIA AND THEN THIS HAPPENS. // ==> CIA and then this happen
                 // everything highlighted has all capatalization reversed 100%
@@ -329,7 +253,9 @@ namespace TutorialSynth {
         }
     }
 
-
+    /// <summary>
+    /// The currently available waveform types
+    /// </summary>
     public enum WaveForm {
         Sine, Square, Saw, Triangle, Noise
     };
