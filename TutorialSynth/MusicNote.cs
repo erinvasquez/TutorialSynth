@@ -118,6 +118,10 @@ namespace TutorialSynth {
             return noteName.ToString();
         }
 
+        public PianoKeys GetPianoKey() {
+            return (PianoKeys)Enum.Parse(typeof(PianoKeys), (noteName.ToString().ToUpper() + octave.ToString()));
+        }
+
 
         public bool NoteIsHigherThan(MusicNote _musicNote) {
 
@@ -134,8 +138,8 @@ namespace TutorialSynth {
 
             }
 
-            // If our octave is less than our observed one, we're definitely not greater
-
+            // If our octave is less than the observed one,
+            // we're definitely not greater
             return false;
         }
 

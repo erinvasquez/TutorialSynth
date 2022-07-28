@@ -39,11 +39,50 @@ namespace TutorialSynth {
 
         // Default code plays enough samples/second to play one second of audio
         // since it literally uses a 44.1 khz (?) sample rate
+        /// <summary>
+        /// 
+        /// </summary>
         private short playTimeInSeconds = 16;
 
+        /// <summary>
+        /// 
+        /// </summary>
         private Random random;
+
+        /// <summary>
+        /// 
+        /// </summary>
         private short[] wave;
+
+        /// <summary>
+        /// 
+        /// </summary>
         private byte[] binaryWave;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private double volumeLevel = 0.22; // otherwise known as Gain
+        /// <summary>
+        /// 
+        /// </summary>
+        private double sustainLevel = 0.15; // volume level after a note's "attack"
+        
+        /// <summary>
+        /// The amount in hz that we offset our frequency to change our note
+        /// to a higher or lower one temporarily using some control
+        /// </summary>
+        private double frequencyOffset = 0.0;
+
+        public double frequency_default;
+
+        // Can we have a list of current inputs?
+        // like key up and down events so we can add and remove from
+        // some strucute/list/stack/etc that will hold the currently
+        // playing notes
+
+        // private int oscillatorCount = 10 //? We have 10 fingers, should we use this?
+
 
 
         /// <summary>
@@ -58,6 +97,11 @@ namespace TutorialSynth {
             var devices = en.EnumerateAudioEndPoints(DataFlow.All, DeviceState.Active);
             comboBox1.Items.AddRange(devices.ToArray());
 
+            // Should we make 10 oscillators? Or just play 10 notes
+            // on one oscillator (We can add and multiply our wave data to do this)
+
+            MusicNote myNote = new MusicNote(SharpNotes.D, 3);
+            frequency_default = MusicTheory.GetETFrequencyFromPianoKey(myNote.GetPianoKey());
 
         }
 
@@ -65,7 +109,7 @@ namespace TutorialSynth {
         /// Called by some process to play exactly one second of a
         /// stream of WAV audio at the desire frequency
         /// </summary>
-        private void PlayOneSecondFrequency(float _frequency) {
+        private void PlayOneSecondFrequency(double _frequency) {
             random = new Random();
             wave = new short[SAMPLE_RATE * playTimeInSeconds];
             binaryWave = new byte[SAMPLE_RATE * sizeof(short) * playTimeInSeconds];
@@ -209,6 +253,47 @@ namespace TutorialSynth {
         }
 
         /// <summary>
+        /// 
+        /// </summary>
+        public void IncrementFrequencyOffset() {
+            frequencyOffset += 0.5;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public void DecrementFrequencyOffset() {
+            frequencyOffset -= 0.5;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="offset"></param>
+        public void AddToFrequencyOffset(float offset) {
+            frequencyOffset += offset;
+        }
+
+        #region getters
+
+        /// <summary>
+        /// Get an ETFrequency from a piano key,
+        /// A0 to C8
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        public double GetETFrequencyFromPianoKey(PianoKeys key) {
+            double aForForty = 440.0;
+
+            double a = Math.Pow(2.0, (1.0 / 12.0));
+
+            return (double)aForForty * Math.Pow(a, (double)key);
+
+        }
+
+        #endregion
+
+        /// <summary>
         /// Is called when we detect a keyboard key go down
         /// </summary>
         /// <param name="sender"></param>
@@ -217,10 +302,14 @@ namespace TutorialSynth {
 
             // Get a frequency from the key we pressed then send it to PlayOneSecondFrequency()
 
-            PlayOneSecondFrequency(220f);
+
+            PlayOneSecondFrequency(frequency_default);
 
             // https://stackoverflow.com/questions/19330717/less-than-greater-than-keys-enumeration-in-c-sharp
             // http://soundfile.sapp.org/doc/WaveFormat/
+
+
+
 
         }
 
