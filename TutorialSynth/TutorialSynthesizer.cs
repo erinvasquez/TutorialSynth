@@ -42,7 +42,7 @@ namespace TutorialSynth {
         /// <summary>
         /// 
         /// </summary>
-        private short playTimeInSeconds = 2;
+        //private short playTimeInSeconds = 2;
 
         /// <summary>
         /// 
@@ -100,7 +100,7 @@ namespace TutorialSynth {
             // Should we make 10 oscillators? Or just play 10 notes
             // on one oscillator (We can add and multiply our wave data to do this)
 
-            frequency_default = MusicTheory.GetETFrequencyFromPianoKey(PianoKeys.DSharp3);
+            frequency_default = new MusicNote(SharpNotes.D, 3).GetETFrequency();
 
         }
 
@@ -160,19 +160,17 @@ namespace TutorialSynth {
 
                 // https://docs.microsoft.com/en-us/archive/blogs/dawate/intro-to-audio-programming-part-3-synthesizing-simple-wave-audio-using-c
 
+                // Copy to a byte array for our binary writer
+                Buffer.BlockCopy(wave, 0, binaryWave, 0, wave.Length * sizeof(short));
+
+
+                // http://soundfile.sapp.org/doc/WaveFormat/
+                // Play the generated WAV audio data via a memory stream
+                // that we've written onto with a binary writer
+                WriteAndPlayWAV(1);
+
             }
-
-
-            Buffer.BlockCopy(wave, 0, binaryWave, 0, wave.Length * sizeof(short));
-
-
-            // http://soundfile.sapp.org/doc/WaveFormat/
-            // Play the generated WAV audio data via a memory stream
-            // that we've written onto with a binary writer
-            WriteAndPlayWAV(1);
-
             
-
         }
 
         /// <summary>
@@ -182,13 +180,10 @@ namespace TutorialSynth {
         /// <param name="_playTimeInSeconds"></param>
         private void PlayFrequency(double _frequency, short _playTimeInSeconds) {
             random = new Random();
-            wave = new short[SAMPLE_RATE];
-            binaryWave = new byte[SAMPLE_RATE * sizeof(short)];
+            wave = new short[SAMPLE_RATE * _playTimeInSeconds];
+            binaryWave = new byte[SAMPLE_RATE * _playTimeInSeconds * sizeof(short)];
 
             foreach(Oscillator oscillator in this.Controls.OfType<Oscillator>()) {
-                int samplesPerWaveLength = (int)(SAMPLE_RATE / _frequency);
-                short ampStep = (short)((short.MaxValue * 2) / samplesPerWaveLength);
-                short tempSample;
 
 
                 switch (oscillator.Waveform) {
@@ -220,11 +215,13 @@ namespace TutorialSynth {
 
                 }
 
+                // Copy to a byte array for our binary writer
+                Buffer.BlockCopy(wave, 0, binaryWave, 0, wave.Length * sizeof(short));
+
                 // Write our data to a memory stream and play WAV with sound player
                 WriteAndPlayWAV(_playTimeInSeconds);
 
             }
-
 
         }
 
@@ -256,7 +253,7 @@ namespace TutorialSynth {
             short ampStep = (short)((short.MaxValue * 2) / samplesPerWaveLength);
             short tempSample;
 
-            for (int i = 0; i < SAMPLE_RATE * playTimeInSeconds; i++) {
+            for (int i = 0; i < SAMPLE_RATE * _playTimeInSeconds; i++) {
 
                 tempSample = -short.MaxValue;
 

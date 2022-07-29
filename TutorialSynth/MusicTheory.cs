@@ -43,6 +43,11 @@ namespace TutorialSynth {
 
         }
 
+        /// <summary>
+        /// OK THIS NEEDS SOME DOUBLE CHECKING THAT LAST LINE SHOULDNT BE (double) key, it should be half steps from A4
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
         public static double GetETFrequencyFromPianoKey(PianoKeys key) {
             double aForForty = 440.0;
 
