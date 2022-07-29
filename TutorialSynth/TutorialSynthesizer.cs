@@ -42,7 +42,7 @@ namespace TutorialSynth {
         /// <summary>
         /// 
         /// </summary>
-        private short playTimeInSeconds = 16;
+        private short playTimeInSeconds = 2;
 
         /// <summary>
         /// 
@@ -100,8 +100,7 @@ namespace TutorialSynth {
             // Should we make 10 oscillators? Or just play 10 notes
             // on one oscillator (We can add and multiply our wave data to do this)
 
-            MusicNote myNote = new MusicNote(SharpNotes.D, 3);
-            frequency_default = MusicTheory.GetETFrequencyFromPianoKey(myNote.GetPianoKey());
+            frequency_default = MusicTheory.GetETFrequencyFromPianoKey(PianoKeys.DSharp3);
 
         }
 
@@ -109,16 +108,14 @@ namespace TutorialSynth {
         /// Called by some process to play exactly one second of a
         /// stream of WAV audio at the desire frequency
         /// </summary>
-        private void PlayOneSecondFrequency(double _frequency) {
-            random = new Random();
-            wave = new short[SAMPLE_RATE * playTimeInSeconds];
-            binaryWave = new byte[SAMPLE_RATE * sizeof(short) * playTimeInSeconds];
+        private void PlayFrequencyOneSecond(double _frequency) {
+            wave = new short[SAMPLE_RATE];
+            binaryWave = new byte[SAMPLE_RATE * sizeof(short)];
 
 
 
             // 1) Get the frequency we have prepared
             // if it comes from a music note of some sort, convert it to Hz
-
             // For each oscillator
             // Calculate the wave data that we'll be writing to WAV format
 
@@ -129,69 +126,33 @@ namespace TutorialSynth {
 
 
             foreach (Oscillator oscillator in this.Controls.OfType<Oscillator>()) {
-                int samplesPerWaveLength = (int)(SAMPLE_RATE / _frequency);
-                short ampStep = (short)((short.MaxValue * 2) / samplesPerWaveLength);
-                short tempSample;
 
 
                 switch (oscillator.Waveform) {
 
                     case WaveForm.Sine:
 
-                        for (int i = 0; i < SAMPLE_RATE * playTimeInSeconds; i++) {
-                            wave[i] = Convert.ToInt16(short.MaxValue * Math.Sin(((Math.PI * 2 * _frequency) / SAMPLE_RATE) * i));
-                        }
-
+                        WriteSineWave(wave, _frequency, 1);
                         break;
+
                     case WaveForm.Square:
 
-                        for (int i = 0; i < SAMPLE_RATE * playTimeInSeconds; i++) {
-                            wave[i] = Convert.ToInt16(short.MaxValue * Math.Sign(Math.Sin(((Math.PI * 2 * _frequency) / SAMPLE_RATE) * i)));
-                        }
-
+                        WriteSquareWave(wave, _frequency, 1);
                         break;
 
                     case WaveForm.Saw:
 
-                        for (int i = 0; i < SAMPLE_RATE * playTimeInSeconds; i++) {
-
-                            tempSample = -short.MaxValue;
-
-                            for (int j = 0; j < samplesPerWaveLength && i < SAMPLE_RATE; j++) {
-                                tempSample += ampStep;
-                                wave[i++] = Convert.ToInt16(tempSample);
-                            }
-
-                            i--;
-                        }
-
+                        WriteSawWave(wave, _frequency, 1);
                         break;
-
 
                     case WaveForm.Triangle:
 
-                        tempSample = -short.MaxValue;
-
-                        for (int i = 0; i < SAMPLE_RATE * playTimeInSeconds ; i++) {
-
-                            if (Math.Abs(tempSample + ampStep) > short.MaxValue) {
-                                ampStep = (short)-ampStep;
-                                wave[i++] = Convert.ToInt16(tempSample);
-                            }
-
-                            tempSample += ampStep;
-                            wave[i] = Convert.ToInt16(tempSample);
-                        }
-
+                        WriteTriangleWave(wave, _frequency, 1);
                         break;
 
                     case WaveForm.Noise:
 
-                        for (int i = 0; i < SAMPLE_RATE * playTimeInSeconds; i++) {
-                            wave[i] = (short)random.Next(-short.MaxValue, short.MaxValue);
-                        }
-
-
+                        WriteNoise(wave, 1);
                         break;
 
                 }
@@ -206,9 +167,144 @@ namespace TutorialSynth {
 
 
             // http://soundfile.sapp.org/doc/WaveFormat/
+            // Play the generated WAV audio data via a memory stream
+            // that we've written onto with a binary writer
+            WriteAndPlayWAV(1);
+
+            
+
+        }
+
+        /// <summary>
+        /// Called by ___ to play a frequency for a desired length o time
+        /// </summary>
+        /// <param name="_frequency"></param>
+        /// <param name="_playTimeInSeconds"></param>
+        private void PlayFrequency(double _frequency, short _playTimeInSeconds) {
+            random = new Random();
+            wave = new short[SAMPLE_RATE];
+            binaryWave = new byte[SAMPLE_RATE * sizeof(short)];
+
+            foreach(Oscillator oscillator in this.Controls.OfType<Oscillator>()) {
+                int samplesPerWaveLength = (int)(SAMPLE_RATE / _frequency);
+                short ampStep = (short)((short.MaxValue * 2) / samplesPerWaveLength);
+                short tempSample;
+
+
+                switch (oscillator.Waveform) {
+
+                    case WaveForm.Sine:
+
+                        WriteSineWave(wave, _frequency, _playTimeInSeconds);
+                        break;
+
+                    case WaveForm.Square:
+
+                        WriteSquareWave(wave, _frequency, _playTimeInSeconds);
+                        break;
+
+                    case WaveForm.Saw:
+
+                        WriteSawWave(wave, _frequency, _playTimeInSeconds);
+                        break;
+
+                    case WaveForm.Triangle:
+
+                        WriteTriangleWave(wave, _frequency, _playTimeInSeconds);
+                        break;
+
+                    case WaveForm.Noise:
+
+                        WriteNoise(wave, _playTimeInSeconds);
+                        break;
+
+                }
+
+                // Write our data to a memory stream and play WAV with sound player
+                WriteAndPlayWAV(_playTimeInSeconds);
+
+            }
+
+
+        }
+
+        #region Waves
+
+        /// <summary>
+        /// Write a sin wave at the desired frequency to our data array
+        /// </summary>
+        /// <param name="_wave"></param>
+        /// <param name="_frequency"></param>
+        public void WriteSineWave(short[] _wave, double _frequency, int _playTimeInSeconds) {
+
+            for (int i = 0; i < SAMPLE_RATE; i++) {
+                _wave[i] = Convert.ToInt16(short.MaxValue * Math.Sin(((Math.PI * 2 * _frequency) / SAMPLE_RATE * _playTimeInSeconds) * i));
+            }
+
+        }
+
+        public void WriteSquareWave(short[] _wave, double _frequency, int _playTimeInSeconds) {
+
+            for (int i = 0; i < SAMPLE_RATE; i++) {
+                _wave[i] = Convert.ToInt16(short.MaxValue * Math.Sin(((Math.PI * 2 * _frequency) / SAMPLE_RATE * _playTimeInSeconds) * i));
+            }
+
+        }
+
+        public void WriteSawWave(short[] _wave, double _frequency, int _playTimeInSeconds) {
+            int samplesPerWaveLength = (int)(SAMPLE_RATE / _frequency);
+            short ampStep = (short)((short.MaxValue * 2) / samplesPerWaveLength);
+            short tempSample;
+
+            for (int i = 0; i < SAMPLE_RATE * playTimeInSeconds; i++) {
+
+                tempSample = -short.MaxValue;
+
+                for (int j = 0; j < samplesPerWaveLength && i < SAMPLE_RATE * _playTimeInSeconds; j++) {
+                    tempSample += ampStep;
+                    _wave[i++] = Convert.ToInt16(tempSample);
+                }
+
+                i--;
+            }
+        }
+
+
+
+        public void WriteTriangleWave(short[] _wave, double _frequency, int _playTimeInSeconds) {
+            int samplesPerWaveLength = (int)(SAMPLE_RATE / _frequency);
+            short ampStep = (short)((short.MaxValue * 2) / samplesPerWaveLength);
+            short tempSample;
+
+            tempSample = -short.MaxValue;
+
+            for (int i = 0; i < SAMPLE_RATE * _playTimeInSeconds; i++) {
+
+                if (Math.Abs(tempSample + ampStep) > short.MaxValue) {
+                    ampStep = (short)-ampStep;
+                    _wave[i++] = Convert.ToInt16(tempSample);
+                }
+
+                tempSample += ampStep;
+                _wave[i] = Convert.ToInt16(tempSample);
+            }
+
+        }
+
+        public void WriteNoise(short[] _wave, int _playTimeInSeconds) {
+            random = new Random();
+
+            for (int i = 0; i < SAMPLE_RATE * _playTimeInSeconds; i++) {
+                _wave[i] = (short)random.Next(-short.MaxValue, short.MaxValue);
+            }
+        }
+
+        #endregion
+
+        public void WriteAndPlayWAV(int playTimeInSeconds) {
+
             using (MemoryStream memoryStream = new MemoryStream())
             using (BinaryWriter binaryWriter = new BinaryWriter(memoryStream)) {
-
                 short blockAlign = (short)BITS_PER_SAMPLE / 8; // cast to short "If you perform division on a short it converts to int as you can't perform arithmetic on a short"
                 int subChunkTwoSize = SAMPLE_RATE * blockAlign * playTimeInSeconds;
 
@@ -252,6 +348,8 @@ namespace TutorialSynth {
 
         }
 
+
+        #region FrequencyOffset
         /// <summary>
         /// 
         /// </summary>
@@ -273,6 +371,8 @@ namespace TutorialSynth {
         public void AddToFrequencyOffset(float offset) {
             frequencyOffset += offset;
         }
+
+        #endregion
 
         #region getters
 
@@ -302,8 +402,9 @@ namespace TutorialSynth {
 
             // Get a frequency from the key we pressed then send it to PlayOneSecondFrequency()
 
-
-            PlayOneSecondFrequency(frequency_default);
+            
+            
+            PlayFrequencyOneSecond(frequency_default);
 
             // https://stackoverflow.com/questions/19330717/less-than-greater-than-keys-enumeration-in-c-sharp
             // http://soundfile.sapp.org/doc/WaveFormat/
