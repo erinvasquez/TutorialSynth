@@ -67,7 +67,7 @@ namespace TutorialSynth {
         /// 
         /// </summary>
         private double sustainLevel = 0.15; // volume level after a note's "attack"
-        
+
         /// <summary>
         /// The amount in hz that we offset our frequency to change our note
         /// to a higher or lower one temporarily using some control
@@ -76,10 +76,16 @@ namespace TutorialSynth {
 
         public double frequency_default;
 
+
+
+
         // Can we have a list of current inputs?
         // like key up and down events so we can add and remove from
         // some strucute/list/stack/etc that will hold the currently
         // playing notes
+        public int[] keysPressed;
+
+
 
         // private int oscillatorCount = 10 //? We have 10 fingers, should we use this?
 
@@ -96,6 +102,8 @@ namespace TutorialSynth {
             MMDeviceEnumerator en = new MMDeviceEnumerator();
             var devices = en.EnumerateAudioEndPoints(DataFlow.All, DeviceState.Active);
             comboBox1.Items.AddRange(devices.ToArray());
+
+            keysPressed = new int[10];
 
             // Should we make 10 oscillators? Or just play 10 notes
             // on one oscillator (We can add and multiply our wave data to do this)
@@ -170,7 +178,7 @@ namespace TutorialSynth {
                 WriteAndPlayWAV(1);
 
             }
-            
+
         }
 
         /// <summary>
@@ -183,7 +191,7 @@ namespace TutorialSynth {
             wave = new short[SAMPLE_RATE * _playTimeInSeconds];
             binaryWave = new byte[SAMPLE_RATE * _playTimeInSeconds * sizeof(short)];
 
-            foreach(Oscillator oscillator in this.Controls.OfType<Oscillator>()) {
+            foreach (Oscillator oscillator in this.Controls.OfType<Oscillator>()) {
 
 
                 switch (oscillator.Waveform) {
@@ -390,8 +398,15 @@ namespace TutorialSynth {
 
         #endregion
 
+        #region Events
+
         /// <summary>
         /// Is called when we detect a keyboard key go down
+        /// 
+        /// The only keyboard input we're expecting for now is from our alphabet 
+        /// keys playing our synthesizer
+        /// 
+        /// 
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -399,15 +414,135 @@ namespace TutorialSynth {
 
             // Get a frequency from the key we pressed then send it to PlayOneSecondFrequency()
 
-            
-            
+
+            // For now, play a sample noise when we play any key
             PlayFrequencyOneSecond(frequency_default);
+
+            switch (e.KeyCode) {
+                case Keys.Z:
+                    break;
+                case Keys.X:
+                    break;
+                case Keys.C:
+                    break;
+                case Keys.V:
+                    break;
+                case Keys.B:
+                    break;
+                case Keys.N:
+                    break;
+                case Keys.M:
+                    break;
+                case Keys.A:
+                    break;
+                case Keys.S:
+                    break;
+                case Keys.D:
+                    break;
+                case Keys.F:
+                    break;
+                case Keys.G:
+                    break;
+                case Keys.H:
+                    break;
+                case Keys.J:
+                    break;
+                case Keys.K:
+                    break;
+                case Keys.L:
+                    break;
+                case Keys.Q:
+                    break;
+                case Keys.W:
+                    break;
+                case Keys.E:
+                    break;
+                case Keys.R:
+                    break;
+                case Keys.T:
+                    break;
+                case Keys.Y:
+                    break;
+                case Keys.U:
+                    break;
+                case Keys.I:
+                    break;
+                case Keys.O:
+                    break;
+                case Keys.P:
+                    break;
+                default:
+                    break;
+            }
+
+
 
             // https://stackoverflow.com/questions/19330717/less-than-greater-than-keys-enumeration-in-c-sharp
             // http://soundfile.sapp.org/doc/WaveFormat/
 
 
 
+
+        }
+
+        private void TutorialSynthesizer_KeyUp(object sender, KeyEventArgs e) {
+
+            switch (e.KeyCode) {
+                case Keys.Z:
+                    break;
+                case Keys.X:
+                    break;
+                case Keys.C:
+                    break;
+                case Keys.V:
+                    break;
+                case Keys.B:
+                    break;
+                case Keys.N:
+                    break;
+                case Keys.M:
+                    break;
+                case Keys.A:
+                    break;
+                case Keys.S:
+                    break;
+                case Keys.D:
+                    break;
+                case Keys.F:
+                    break;
+                case Keys.G:
+                    break;
+                case Keys.H:
+                    break;
+                case Keys.J:
+                    break;
+                case Keys.K:
+                    break;
+                case Keys.L:
+                    break;
+                case Keys.Q:
+                    break;
+                case Keys.W:
+                    break;
+                case Keys.E:
+                    break;
+                case Keys.R:
+                    break;
+                case Keys.T:
+                    break;
+                case Keys.Y:
+                    break;
+                case Keys.U:
+                    break;
+                case Keys.I:
+                    break;
+                case Keys.O:
+                    break;
+                case Keys.P:
+                    break;
+                default:
+                    break;
+            }
 
         }
 
@@ -444,7 +579,15 @@ namespace TutorialSynth {
             }
 
         }
+
+        #endregion
+
+        
+
+
+
     }
+
 
     /// <summary>
     /// The currently available waveform types

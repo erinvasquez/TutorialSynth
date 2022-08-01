@@ -82,6 +82,7 @@ namespace TutorialSynth {
             this.KeyPreview = true;
             this.Name = "TutorialSynthesizer";
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.TutorialSynthesizer_KeyDown);
+            this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.TutorialSynthesizer_KeyUp);
             this.ResumeLayout(false);
             this.PerformLayout();
 
