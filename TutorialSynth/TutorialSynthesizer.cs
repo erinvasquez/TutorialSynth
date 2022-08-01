@@ -420,6 +420,11 @@ namespace TutorialSynth {
 
             switch (e.KeyCode) {
                 case Keys.Z:
+
+                    int numToRemove = 4;
+
+                    keysPressed = keysPressed.Where(val => val != numToRemove).ToArray();
+
                     break;
                 case Keys.X:
                     break;
