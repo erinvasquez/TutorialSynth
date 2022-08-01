@@ -74,7 +74,16 @@ namespace TutorialSynth {
         /// </summary>
         private double frequencyOffset = 0.0;
 
-        public double frequency_default;
+        public double currentFrequency;
+
+        /// <summary>
+        /// Since Z is our lowest key possible, by default,
+        /// we want to be able to change what key this is later using this
+        /// 
+        /// 
+        /// 
+        /// </summary>
+        public int keyOffset = 0;
 
 
 
@@ -83,7 +92,7 @@ namespace TutorialSynth {
         // like key up and down events so we can add and remove from
         // some strucute/list/stack/etc that will hold the currently
         // playing notes
-        public int[] keysPressed;
+        public List<int> keysPressed;
 
 
 
@@ -103,12 +112,12 @@ namespace TutorialSynth {
             var devices = en.EnumerateAudioEndPoints(DataFlow.All, DeviceState.Active);
             comboBox1.Items.AddRange(devices.ToArray());
 
-            keysPressed = new int[10];
+            keysPressed = new List<int>();
 
             // Should we make 10 oscillators? Or just play 10 notes
             // on one oscillator (We can add and multiply our wave data to do this)
 
-            frequency_default = new MusicNote(SharpNotes.D, 3).GetETFrequency();
+            currentFrequency = new MusicNote(SharpNotes.D, 3).GetETFrequency();
 
         }
 
@@ -398,6 +407,7 @@ namespace TutorialSynth {
 
         #endregion
 
+
         #region Events
 
         /// <summary>
@@ -416,17 +426,20 @@ namespace TutorialSynth {
 
 
             // For now, play a sample noise when we play any key
-            PlayFrequencyOneSecond(frequency_default);
+            PlayFrequencyOneSecond(currentFrequency);
 
             switch (e.KeyCode) {
                 case Keys.Z:
-
-                    int numToRemove = 4;
-
-                    keysPressed = keysPressed.Where(val => val != numToRemove).ToArray();
+                    // When we press Z, we want to record the key
+                    // as a keyboard key (since we can't press it twice 
+                    // at any instant)
+                    // 0 is Z, 25 is P, for now
+                    keysPressed.Add(0);
+                    
 
                     break;
                 case Keys.X:
+
                     break;
                 case Keys.C:
                     break;
@@ -494,8 +507,15 @@ namespace TutorialSynth {
 
             switch (e.KeyCode) {
                 case Keys.Z:
+                    // Assuming nothing weird is going on
+
+                    keysPressed = keysPressed.Where(val => val != (int)PianoKeys.A0).ToArray();
+
                     break;
                 case Keys.X:
+
+                    keysPressed = keysPressed.Where(val => val != (int)PianoKeys.A1).ToArray();
+
                     break;
                 case Keys.C:
                     break;
@@ -599,6 +619,12 @@ namespace TutorialSynth {
     /// </summary>
     public enum WaveForm {
         Sine, Square, Saw, Triangle, Noise
+    };
+
+    public enum AlphabetKeys {
+        Z = 0, X, C, V, B, N, M,
+        A, S, D, F, G, H, J, K, L,
+        Q, W, E, R, T, Y, U, I, O, P
     };
 
 }
