@@ -92,7 +92,7 @@ namespace TutorialSynth {
         // like key up and down events so we can add and remove from
         // some strucute/list/stack/etc that will hold the currently
         // playing notes
-        public List<int> keysPressed;
+        public List<AlphabetKeys> keysPressed;
 
 
 
@@ -112,7 +112,7 @@ namespace TutorialSynth {
             var devices = en.EnumerateAudioEndPoints(DataFlow.All, DeviceState.Active);
             comboBox1.Items.AddRange(devices.ToArray());
 
-            keysPressed = new List<int>();
+            keysPressed = new List<AlphabetKeys>();
 
             // Should we make 10 oscillators? Or just play 10 notes
             // on one oscillator (We can add and multiply our wave data to do this)
@@ -407,6 +407,18 @@ namespace TutorialSynth {
 
         #endregion
 
+        #region VolumeControl
+        public double VolumeToDb(double volume) {
+            return 0.0;
+        }
+        
+
+        public double DbToVolume(double dB) {
+            return 0.0;
+        }
+
+        #endregion
+
 
         #region Events
 
@@ -434,11 +446,12 @@ namespace TutorialSynth {
                     // as a keyboard key (since we can't press it twice 
                     // at any instant)
                     // 0 is Z, 25 is P, for now
-                    keysPressed.Add(0);
+                    keysPressed.Add(AlphabetKeys.Z);
                     
-
                     break;
                 case Keys.X:
+
+                    keysPressed.Add(AlphabetKeys.X);
 
                     break;
                 case Keys.C:
