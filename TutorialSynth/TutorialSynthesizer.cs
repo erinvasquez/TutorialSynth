@@ -74,7 +74,10 @@ namespace TutorialSynth {
         /// </summary>
         private double frequencyOffset = 0.0;
 
-        public double currentFrequency;
+        /// <summary>
+        /// 
+        /// </summary>
+        public double frequency;
 
         /// <summary>
         /// Since Z is our lowest key possible, by default,
@@ -88,10 +91,9 @@ namespace TutorialSynth {
 
 
 
-        // Can we have a list of current inputs?
-        // like key up and down events so we can add and remove from
-        // some strucute/list/stack/etc that will hold the currently
-        // playing notes
+        /// <summary>
+        /// 
+        /// </summary>
         public List<AlphabetKeys> keysPressed;
 
 
@@ -117,7 +119,7 @@ namespace TutorialSynth {
             // Should we make 10 oscillators? Or just play 10 notes
             // on one oscillator (We can add and multiply our wave data to do this)
 
-            currentFrequency = new MusicNote(SharpNotes.D, 3).GetETFrequency();
+            frequency = new MusicNote(SharpNotes.D, 3).GetETFrequency();
 
         }
 
@@ -362,7 +364,6 @@ namespace TutorialSynth {
 
         }
 
-
         #region FrequencyOffset
         /// <summary>
         /// 
@@ -407,13 +408,6 @@ namespace TutorialSynth {
 
         #endregion
 
-        #region VolumeControl
-
-        
-
-        #endregion
-
-
         #region Events
 
         /// <summary>
@@ -431,8 +425,9 @@ namespace TutorialSynth {
             // Get a frequency from the key we pressed then send it to PlayOneSecondFrequency()
 
 
-            // For now, play a sample noise when we play any key
-            PlayFrequency(currentFrequency, 3);
+            // For now, play a sample noise when we play any key'
+            // 3 seconds long to start
+            PlayFrequency(frequency, 3);
 
             switch (e.KeyCode) {
                 case Keys.Z:
@@ -449,64 +444,129 @@ namespace TutorialSynth {
 
                     break;
                 case Keys.C:
+
+                    keysPressed.Add(AlphabetKeys.C);
+
                     break;
                 case Keys.V:
+
+                    keysPressed.Add(AlphabetKeys.V);
+
                     break;
                 case Keys.B:
+
+                    keysPressed.Add(AlphabetKeys.B);
+
                     break;
                 case Keys.N:
+
+                    keysPressed.Add(AlphabetKeys.N);
+
                     break;
                 case Keys.M:
+
+                    keysPressed.Add(AlphabetKeys.M);
+
                     break;
                 case Keys.A:
+
+                    keysPressed.Add(AlphabetKeys.A);
+
                     break;
                 case Keys.S:
+
+                    keysPressed.Add(AlphabetKeys.S);
+
                     break;
                 case Keys.D:
+
+                    keysPressed.Add(AlphabetKeys.D);
+
                     break;
                 case Keys.F:
+
+                    keysPressed.Add(AlphabetKeys.F);
+
                     break;
                 case Keys.G:
+
+                    keysPressed.Add(AlphabetKeys.G);
+
                     break;
                 case Keys.H:
+
+                    keysPressed.Add(AlphabetKeys.H);
+
                     break;
                 case Keys.J:
+
+                    keysPressed.Add(AlphabetKeys.J);
+
                     break;
                 case Keys.K:
+
+                    keysPressed.Add(AlphabetKeys.K);
+
                     break;
                 case Keys.L:
+
+                    keysPressed.Add(AlphabetKeys.L);
+
                     break;
                 case Keys.Q:
+
+                    keysPressed.Add(AlphabetKeys.Q);
+
                     break;
                 case Keys.W:
+
+                    keysPressed.Add(AlphabetKeys.W);
+
                     break;
                 case Keys.E:
+
+                    keysPressed.Add(AlphabetKeys.E);
+
                     break;
                 case Keys.R:
+
+                    keysPressed.Add(AlphabetKeys.R);
+
                     break;
                 case Keys.T:
+
+                    keysPressed.Add(AlphabetKeys.T);
+
                     break;
                 case Keys.Y:
+
+                    keysPressed.Add(AlphabetKeys.Y);
+
                     break;
                 case Keys.U:
+
+                    keysPressed.Add(AlphabetKeys.U);
+
                     break;
                 case Keys.I:
+
+                    keysPressed.Add(AlphabetKeys.I);
+
                     break;
                 case Keys.O:
+
+                    keysPressed.Add(AlphabetKeys.O);
                     break;
                 case Keys.P:
+
+                    keysPressed.Add(AlphabetKeys.P);
                     break;
                 default:
                     break;
             }
 
-
-
             // https://stackoverflow.com/questions/19330717/less-than-greater-than-keys-enumeration-in-c-sharp
             // http://soundfile.sapp.org/doc/WaveFormat/
-
-
-
 
         }
 
@@ -517,62 +577,128 @@ namespace TutorialSynth {
                     // Assuming nothing weird is going on
 
                     //keysPressed = keysPressed.Where(val => val != (int)PianoKeys.A0).ToArray();
-                    keysPressed.Remove((int)PianoKeys.A0); // something else belongs here
-
+                    keysPressed.Remove(AlphabetKeys.Z);
 
                     break;
                 case Keys.X:
 
                     //keysPressed = keysPressed.Where(val => val != (int)PianoKeys.A1).ToArray();
-                    keysPressed.Remove((int)PianoKeys.A0); // no this is wrong somehow, something else belongs here
+                    keysPressed.Remove(AlphabetKeys.X);
+
                     break;
                 case Keys.C:
+
+                    keysPressed.Remove(AlphabetKeys.C);
+
                     break;
                 case Keys.V:
+
+                    keysPressed.Remove(AlphabetKeys.V);
+
                     break;
                 case Keys.B:
+
+                    keysPressed.Remove(AlphabetKeys.B);
+
                     break;
                 case Keys.N:
+
+                    keysPressed.Remove(AlphabetKeys.N);
                     break;
                 case Keys.M:
+
+                    keysPressed.Remove(AlphabetKeys.M);
+
                     break;
                 case Keys.A:
+
+                    keysPressed.Remove(AlphabetKeys.A);
+
                     break;
                 case Keys.S:
+
+                    keysPressed.Remove(AlphabetKeys.S);
+
                     break;
                 case Keys.D:
+
+                    keysPressed.Remove(AlphabetKeys.D);
+
                     break;
                 case Keys.F:
+
+                    keysPressed.Remove(AlphabetKeys.F);
+
                     break;
                 case Keys.G:
+
+                    keysPressed.Remove(AlphabetKeys.G);
+
                     break;
                 case Keys.H:
+
+                    keysPressed.Remove(AlphabetKeys.H);
+
                     break;
                 case Keys.J:
+
+                    keysPressed.Remove(AlphabetKeys.J);
                     break;
                 case Keys.K:
+
+                    keysPressed.Remove(AlphabetKeys.K);
+
                     break;
                 case Keys.L:
+
+                    keysPressed.Remove(AlphabetKeys.L);
+
                     break;
                 case Keys.Q:
+
+                    keysPressed.Remove(AlphabetKeys.Q);
+
                     break;
                 case Keys.W:
+
+                    keysPressed.Remove(AlphabetKeys.W);
+
                     break;
                 case Keys.E:
+
+                    keysPressed.Remove(AlphabetKeys.E);
+                    
                     break;
                 case Keys.R:
+
+                    keysPressed.Remove(AlphabetKeys.R);
                     break;
                 case Keys.T:
+
+                    keysPressed.Remove(AlphabetKeys.T);
                     break;
                 case Keys.Y:
+                    keysPressed.Remove(AlphabetKeys.Y);
                     break;
                 case Keys.U:
+
+                    keysPressed.Remove(AlphabetKeys.U);
+
                     break;
                 case Keys.I:
+
+                    keysPressed.Remove(AlphabetKeys.I);
+
                     break;
                 case Keys.O:
+
+                    keysPressed.Remove(AlphabetKeys.O);
+
                     break;
                 case Keys.P:
+
+                    keysPressed.Remove(AlphabetKeys.P);
+
                     break;
                 default:
                     break;
@@ -615,8 +741,6 @@ namespace TutorialSynth {
         }
 
         #endregion
-
-        
 
 
 
