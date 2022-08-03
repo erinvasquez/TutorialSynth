@@ -101,7 +101,7 @@ namespace TutorialSynth {
         /// </summary>
         /// <returns></returns>
         public double GetP() {
-            return 9 + (12 * Math.Log(equalTemperamentFrequency, 2.0) / 440.0);
+            return 9.0 + (12.0 * Math.Log(equalTemperamentFrequency, 2.0) / 440.0);
         }
 
         /// <summary>
@@ -122,7 +122,6 @@ namespace TutorialSynth {
             return (PianoKeys)Enum.Parse(typeof(PianoKeys), (noteName.ToString().ToUpper() + octave.ToString()));
         }
 
-
         public bool NoteIsHigherThan(MusicNote _musicNote) {
 
             // if our octave is greater, the frequency is greater
@@ -142,10 +141,6 @@ namespace TutorialSynth {
             // we're definitely not greater
             return false;
         }
-
-
-
-        
 
         public override string ToString() {
             return noteName.ToString();

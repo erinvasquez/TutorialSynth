@@ -408,14 +408,8 @@ namespace TutorialSynth {
         #endregion
 
         #region VolumeControl
-        public double VolumeToDb(double volume) {
-            return 0.0;
-        }
-        
 
-        public double DbToVolume(double dB) {
-            return 0.0;
-        }
+        
 
         #endregion
 
@@ -438,7 +432,7 @@ namespace TutorialSynth {
 
 
             // For now, play a sample noise when we play any key
-            PlayFrequencyOneSecond(currentFrequency);
+            PlayFrequency(currentFrequency, 3);
 
             switch (e.KeyCode) {
                 case Keys.Z:
@@ -522,13 +516,15 @@ namespace TutorialSynth {
                 case Keys.Z:
                     // Assuming nothing weird is going on
 
-                    keysPressed = keysPressed.Where(val => val != (int)PianoKeys.A0).ToArray();
+                    //keysPressed = keysPressed.Where(val => val != (int)PianoKeys.A0).ToArray();
+                    keysPressed.Remove((int)PianoKeys.A0); // something else belongs here
+
 
                     break;
                 case Keys.X:
 
-                    keysPressed = keysPressed.Where(val => val != (int)PianoKeys.A1).ToArray();
-
+                    //keysPressed = keysPressed.Where(val => val != (int)PianoKeys.A1).ToArray();
+                    keysPressed.Remove((int)PianoKeys.A0); // no this is wrong somehow, something else belongs here
                     break;
                 case Keys.C:
                     break;

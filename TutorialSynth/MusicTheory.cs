@@ -7,11 +7,14 @@ using System.Threading.Tasks;
 namespace TutorialSynth {
     
     /// <summary>
-    /// 
+    /// A custom musi class for music theory calculations
+    /// used in my Oscillators and Synthesizers for Audio Programming
     /// </summary>
     class MusicTheory {
 
+        
 
+        #region Get/Set
         /// <summary>
         /// Move this to a music note class? It comes from it originially
         /// Get Half Steps from A4 in order to calculate Equal Temperament Frequency (piano freq to play)
@@ -22,10 +25,67 @@ namespace TutorialSynth {
         /// <returns></returns>
         public HalfStepsFromA4 GetHalfStepsFromA4(SharpNotes _noteName, int octave) {
 
-
-
             return (HalfStepsFromA4)System.Enum.Parse(typeof(HalfStepsFromA4), (_noteName.ToString().ToUpper() + octave.ToString()));
         }
+
+        public MusicNote GetHalfStepUp(MusicNote firstNote) {
+            int newNote = (int)firstNote.noteName;
+            int newOct = firstNote.octave;
+
+            // If this note is SharpNotes.GSHARP, loop back to A in the next octabe
+            if (newNote == (int)SharpNotes.GSHARP) {
+
+                newNote = (int)SharpNotes.A;
+                newOct++;
+            } else {
+                // Just up our note and keep the octave
+                newNote++;
+            }
+
+            return new MusicNote((SharpNotes)newNote, newOct);
+        }
+
+        /// <summary>
+        /// Get the music note 1 whole step,
+        /// or 2 Half steps (semitones) up
+        /// </summary>
+        /// <returns></returns>
+        public MusicNote GetWholeStepUp(MusicNote firstNote) {
+            int note = (int)firstNote.noteName;
+            int oct = firstNote.octave;
+
+            // If this note is SharpNotes.GSHARP, up the octave
+            if (firstNote.noteName == SharpNotes.GSHARP) {
+                note = (int)SharpNotes.ASHARP;
+                oct++;
+            } else if (firstNote.noteName == SharpNotes.G) {
+                // G too, since we move two half steps
+                note = (int)SharpNotes.A;
+                oct++;
+
+            } else {
+                // upping this note by 2 wont affect octaves of notes under G and GSharp
+                note += 2;
+            }
+
+            // *** NOTE FOR LATER ****
+            // if we make a new reference, we use up more memory
+            // should we just initialize all our possible notes in the beginning to save on processing later?
+            // Lets try it out later
+            return new MusicNote((SharpNotes)note, oct);
+        }
+
+        /// <summary>
+        /// Get the MIDI note number
+        /// </summary>
+        /// <returns></returns>
+        public double GetP(double eTFreq) {
+            return 9.0 + (12.0 * Math.Log(eTFreq, 2.0) / 440.0);
+        }
+
+        #endregion
+
+        #region Equal Temperament Frequency Controls
 
         /// <summary>
         /// Get Piano Equal Temperament Frequency given a note's name and octave
@@ -56,6 +116,35 @@ namespace TutorialSynth {
             return aForForty * Math.Pow(a, (double)key);
 
         }
+
+        #endregion
+
+        #region Volume Control
+        // Referenced from https://www.youtube.com/watch?v=Vjm--AqG04Y&ab_channel=GDC
+        // at 9:43 seconds
+        public float VolumeToDb(float volume) {
+
+            // originally uses Math.LogF in the algorithm, we cast to float here
+            // instead of receiving a native float for ""Math.Log10(volume)"
+            return 10.0f * (float) Math.Log10(volume);
+        }
+        
+        public double VolumeToDb(double volume) {
+
+            return 10.0 * Math.Log10(volume);
+        }
+
+        public float DbToVolume(float dB) {
+
+            return (float) Math.Pow(10f, 0.05f * dB);
+        }
+
+        public double DbToVolume(double dB) {
+
+            return Math.Pow(10.0, 0.05 * dB);
+        }
+
+        #endregion
 
     }
 
