@@ -5,9 +5,21 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace TutorialSynth {
-    
+
+    /*
+     * TO DO:
+     * Get Comments on everything
+     * Get Regions tidied up
+     * 
+     * Run some tests and output the results for all possible use cases
+     * 
+     * Fix GetETFrequencyFromPianoKey
+     * 
+     * 
+     */
+
     /// <summary>
-    /// A custom musi class for music theory calculations
+    /// A custom music class for music theory calculations
     /// used in my Oscillators and Synthesizers for Audio Programming
     /// </summary>
     class MusicTheory {
@@ -113,6 +125,14 @@ namespace TutorialSynth {
 
             double a = Math.Pow((double) 2, (double) (1 / 12));
 
+            // A4 in Piano keys is 48
+            int myKey = (int) PianoKeys.A4;
+            // We want to convert this into HalfStepsFromA4
+            // Get how many half steps from A4 our key is
+            // So Get our key in piano keys and subtract that
+            // value from 49 (our PianoKeys.A4)
+
+
             return aForForty * Math.Pow(a, (double)key);
 
         }
@@ -122,6 +142,11 @@ namespace TutorialSynth {
         #region Volume Control
         // Referenced from https://www.youtube.com/watch?v=Vjm--AqG04Y&ab_channel=GDC
         // at 9:43 seconds
+        /// <summary>
+        /// Returns a float volume level
+        /// </summary>
+        /// <param name="volume"></param>
+        /// <returns>A float volume level from a float dB value</returns>
         public float VolumeToDb(float volume) {
 
             // originally uses Math.LogF in the algorithm, we cast to float here
@@ -129,16 +154,31 @@ namespace TutorialSynth {
             return 10.0f * (float) Math.Log10(volume);
         }
         
+        /// <summary>
+        /// Returns a double volume level
+        /// </summary>
+        /// <param name="volume"></param>
+        /// <returns>A double volume level from a double dB value</returns>
         public double VolumeToDb(double volume) {
 
             return 10.0 * Math.Log10(volume);
         }
 
+        /// <summary>
+        /// Returns a float dB level
+        /// </summary>
+        /// <param name="dB"></param>
+        /// <returns>A float dB level from a float volume value</returns>
         public float DbToVolume(float dB) {
 
             return (float) Math.Pow(10f, 0.05f * dB);
         }
 
+        /// <summary>
+        /// Returns a double dB level
+        /// </summary>
+        /// <param name="dB"></param>
+        /// <returns>A double volume level from our dB value</returns>
         public double DbToVolume(double dB) {
 
             return Math.Pow(10.0, 0.05 * dB);

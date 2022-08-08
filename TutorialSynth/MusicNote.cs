@@ -31,6 +31,11 @@ namespace TutorialSynth {
         /// </summary>
         public double equalTemperamentFrequency;
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="octaveNumber"></param>
         public MusicNote(SharpNotes name, int octaveNumber) {
             noteName = name;
             octave = octaveNumber;

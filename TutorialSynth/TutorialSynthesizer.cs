@@ -11,7 +11,10 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using NAudio.CoreAudioApi; // Using NAudio for this one
 
-
+// Useful links
+// https://www.youtube.com/watch?v=fp1Snqq9ovw&t=1053s&ab_channel=G223Productions
+// https://stackoverflow.com/questions/19330717/less-than-greater-than-keys-enumeration-in-c-sharp
+// http://soundfile.sapp.org/doc/WaveFormat/
 
 /// <summary>
 /// From G223 Production's Youtube Video Tutorial
@@ -75,7 +78,7 @@ namespace TutorialSynth {
         private double frequencyOffset = 0.0;
 
         /// <summary>
-        /// 
+        /// A double rate in Hz (times per second)
         /// </summary>
         public double frequency;
 
@@ -87,8 +90,6 @@ namespace TutorialSynth {
         /// 
         /// </summary>
         public int keyOffset = 0;
-
-
 
 
         /// <summary>
@@ -193,7 +194,7 @@ namespace TutorialSynth {
         }
 
         /// <summary>
-        /// Called by ___ to play a frequency for a desired length o time
+        /// Called by ___ to play a frequency for a desired length of time
         /// </summary>
         /// <param name="_frequency"></param>
         /// <param name="_playTimeInSeconds"></param>
@@ -410,6 +411,8 @@ namespace TutorialSynth {
 
         #region Events
 
+
+
         /// <summary>
         /// Is called when we detect a keyboard key go down
         /// 
@@ -427,7 +430,9 @@ namespace TutorialSynth {
 
             // For now, play a sample noise when we play any key'
             // 3 seconds long to start
-            PlayFrequency(frequency, 3);
+            //PlayFrequency(frequency, 3);
+
+
 
             switch (e.KeyCode) {
                 case Keys.Z:
@@ -436,7 +441,7 @@ namespace TutorialSynth {
                     // at any instant)
                     // 0 is Z, 25 is P, for now
                     keysPressed.Add(AlphabetKeys.Z);
-                    
+
                     break;
                 case Keys.X:
 
@@ -565,8 +570,6 @@ namespace TutorialSynth {
                     break;
             }
 
-            // https://stackoverflow.com/questions/19330717/less-than-greater-than-keys-enumeration-in-c-sharp
-            // http://soundfile.sapp.org/doc/WaveFormat/
 
         }
 
@@ -713,10 +716,6 @@ namespace TutorialSynth {
 
         }
 
-        private void progressBar1_Click(object sender, EventArgs e) {
-
-        }
-
         /// <summary>
         /// 
         /// </summary>
@@ -740,10 +739,11 @@ namespace TutorialSynth {
 
         }
 
+        private void TutorialSynthesizer_Load(object sender, EventArgs e) {
+
+        }
+
         #endregion
-
-
-
     }
 
 
