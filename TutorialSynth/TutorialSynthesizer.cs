@@ -23,6 +23,8 @@ using NAudio.CoreAudioApi; // Using NAudio for this one
 /// Make a design doc first, that way everyone knows what's happening before
 /// we're done.
 /// 
+/// TODO:
+///  find out how to use async
 /// 
 /// Uses WAV format
 /// </summary>
@@ -55,12 +57,12 @@ namespace TutorialSynth {
         /// <summary>
         /// 
         /// </summary>
-        private short[] wave;
+        private short[] waveData;
 
         /// <summary>
         /// 
         /// </summary>
-        private byte[] binaryWave;
+        private byte[] binaryWaveData;
 
         /// <summary>
         /// 
@@ -86,7 +88,8 @@ namespace TutorialSynth {
         /// Since Z is our lowest key possible, by default,
         /// we want to be able to change what key this is later using this
         /// 
-        /// 
+        /// The amount of keys we should shift our alphabet input when converting
+        /// to Piano keys and Frequency
         /// 
         /// </summary>
         public int keyOffset = 0;
@@ -96,6 +99,11 @@ namespace TutorialSynth {
         /// 
         /// </summary>
         public List<AlphabetKeys> keysPressed;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public List<AlphabetKeys> keysCanceled;
 
 
 
@@ -129,8 +137,8 @@ namespace TutorialSynth {
         /// stream of WAV audio at the desire frequency
         /// </summary>
         private void PlayFrequencyOneSecond(double _frequency) {
-            wave = new short[SAMPLE_RATE];
-            binaryWave = new byte[SAMPLE_RATE * sizeof(short)];
+            waveData = new short[SAMPLE_RATE];
+            binaryWaveData = new byte[SAMPLE_RATE * sizeof(short)];
 
 
 
@@ -152,27 +160,27 @@ namespace TutorialSynth {
 
                     case WaveForm.Sine:
 
-                        WriteSineWave(wave, _frequency, 1);
+                        WriteSineWave(waveData, _frequency, 1);
                         break;
 
                     case WaveForm.Square:
 
-                        WriteSquareWave(wave, _frequency, 1);
+                        WriteSquareWave(waveData, _frequency, 1);
                         break;
 
                     case WaveForm.Saw:
 
-                        WriteSawWave(wave, _frequency, 1);
+                        WriteSawWave(waveData, _frequency, 1);
                         break;
 
                     case WaveForm.Triangle:
 
-                        WriteTriangleWave(wave, _frequency, 1);
+                        WriteTriangleWave(waveData, _frequency, 1);
                         break;
 
                     case WaveForm.Noise:
 
-                        WriteNoise(wave, 1);
+                        WriteNoise(waveData, 1);
                         break;
 
                 }
@@ -181,7 +189,7 @@ namespace TutorialSynth {
                 // https://docs.microsoft.com/en-us/archive/blogs/dawate/intro-to-audio-programming-part-3-synthesizing-simple-wave-audio-using-c
 
                 // Copy to a byte array for our binary writer
-                Buffer.BlockCopy(wave, 0, binaryWave, 0, wave.Length * sizeof(short));
+                Buffer.BlockCopy(waveData, 0, binaryWaveData, 0, waveData.Length * sizeof(short));
 
 
                 // http://soundfile.sapp.org/doc/WaveFormat/
@@ -190,18 +198,21 @@ namespace TutorialSynth {
                 WriteAndPlayWAV(1);
 
             }
-
+            
         }
 
         /// <summary>
         /// Called by ___ to play a frequency for a desired length of time
+        /// 
+        /// TODO:
+        /// how do we handle fraction times
         /// </summary>
         /// <param name="_frequency"></param>
         /// <param name="_playTimeInSeconds"></param>
         private void PlayFrequency(double _frequency, short _playTimeInSeconds) {
             random = new Random();
-            wave = new short[SAMPLE_RATE * _playTimeInSeconds];
-            binaryWave = new byte[SAMPLE_RATE * _playTimeInSeconds * sizeof(short)];
+            waveData = new short[SAMPLE_RATE * _playTimeInSeconds];
+            binaryWaveData = new byte[SAMPLE_RATE * _playTimeInSeconds * sizeof(short)];
 
             foreach (Oscillator oscillator in this.Controls.OfType<Oscillator>()) {
 
@@ -210,33 +221,33 @@ namespace TutorialSynth {
 
                     case WaveForm.Sine:
 
-                        WriteSineWave(wave, _frequency, _playTimeInSeconds);
+                        WriteSineWave(waveData, _frequency, _playTimeInSeconds);
                         break;
 
                     case WaveForm.Square:
 
-                        WriteSquareWave(wave, _frequency, _playTimeInSeconds);
+                        WriteSquareWave(waveData, _frequency, _playTimeInSeconds);
                         break;
 
                     case WaveForm.Saw:
 
-                        WriteSawWave(wave, _frequency, _playTimeInSeconds);
+                        WriteSawWave(waveData, _frequency, _playTimeInSeconds);
                         break;
 
                     case WaveForm.Triangle:
 
-                        WriteTriangleWave(wave, _frequency, _playTimeInSeconds);
+                        WriteTriangleWave(waveData, _frequency, _playTimeInSeconds);
                         break;
 
                     case WaveForm.Noise:
 
-                        WriteNoise(wave, _playTimeInSeconds);
+                        WriteNoise(waveData, _playTimeInSeconds);
                         break;
 
                 }
 
                 // Copy to a byte array for our binary writer
-                Buffer.BlockCopy(wave, 0, binaryWave, 0, wave.Length * sizeof(short));
+                Buffer.BlockCopy(waveData, 0, binaryWaveData, 0, waveData.Length * sizeof(short));
 
                 // Write our data to a memory stream and play WAV with sound player
                 WriteAndPlayWAV(_playTimeInSeconds);
@@ -246,6 +257,15 @@ namespace TutorialSynth {
         }
 
         #region Waves
+
+        public short[] AddWaves(short[] _waveA, short[] _waveB) {
+            short[] newWave = new short[SAMPLE_RATE];
+
+
+            return newWave;
+
+        }
+
 
         /// <summary>
         /// Write a sin wave at the desired frequency to our data array
@@ -356,10 +376,10 @@ namespace TutorialSynth {
                 // Subchunk2Size == NumSamples * NumChannels * BitsPerSample/8
                 binaryWriter.Write(subChunkTwoSize);
                 // Data - The actual sound data.
-                binaryWriter.Write(binaryWave);
+                binaryWriter.Write(binaryWaveData);
                 memoryStream.Position = 0;
 
-                new SoundPlayer(memoryStream).Play();
+                new SoundPlayer(memoryStream).PlayLooping();
             }
 
 
@@ -407,11 +427,39 @@ namespace TutorialSynth {
 
         }
 
+
+        /// <summary>
+        /// Convert our keyboard alphabet input
+        /// to a Piano Key using our key offset
+        /// 
+        /// TODO:
+        /// Finish this
+        /// Test
+        /// 
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public PianoKeys GetPianoKeyFromAlphabetKey(AlphabetKeys alphaKey) {
+
+
+            return (PianoKeys) ((int) alphaKey + keyOffset);
+        }
+
+        /// <summary>
+        /// TODO:
+        /// Test
+        /// 
+        /// 
+        /// </summary>
+        /// <param name="alphaKey"></param>
+        /// <returns></returns>
+        public double GetFrequencyFromAlphabetKey(AlphabetKeys alphaKey) {
+
+            return (double) GetETFrequencyFromPianoKey( GetPianoKeyFromAlphabetKey(alphaKey));
+
+        }
+
         #endregion
-
-        #region Events
-
-
 
         /// <summary>
         /// Is called when we detect a keyboard key go down
@@ -440,131 +488,184 @@ namespace TutorialSynth {
                     // as a keyboard key (since we can't press it twice 
                     // at any instant)
                     // 0 is Z, 25 is P, for now
-                    keysPressed.Add(AlphabetKeys.Z);
+
+                    if(!keysPressed.Contains(AlphabetKeys.Z)) {
+                        keysPressed.Add(AlphabetKeys.Z);
+                    }
 
                     break;
                 case Keys.X:
 
-                    keysPressed.Add(AlphabetKeys.X);
+                    if (!keysPressed.Contains(AlphabetKeys.X)) {
+                        keysPressed.Add(AlphabetKeys.X);
+                    }
 
                     break;
                 case Keys.C:
 
-                    keysPressed.Add(AlphabetKeys.C);
+                    if (!keysPressed.Contains(AlphabetKeys.C)) {
+                        keysPressed.Add(AlphabetKeys.C);
+                    }
 
                     break;
                 case Keys.V:
 
-                    keysPressed.Add(AlphabetKeys.V);
+                    if (!keysPressed.Contains(AlphabetKeys.V)) {
+                        keysPressed.Add(AlphabetKeys.V);
+                    }
 
                     break;
                 case Keys.B:
 
-                    keysPressed.Add(AlphabetKeys.B);
+                    if (!keysPressed.Contains(AlphabetKeys.B)) {
+                        keysPressed.Add(AlphabetKeys.B);
+                    }
 
                     break;
                 case Keys.N:
 
-                    keysPressed.Add(AlphabetKeys.N);
+                    if (!keysPressed.Contains(AlphabetKeys.N)) {
+                        keysPressed.Add(AlphabetKeys.N);
+                    }
 
                     break;
                 case Keys.M:
 
-                    keysPressed.Add(AlphabetKeys.M);
+                    if (!keysPressed.Contains(AlphabetKeys.M)) {
+                        keysPressed.Add(AlphabetKeys.M);
+                    }
 
                     break;
                 case Keys.A:
 
-                    keysPressed.Add(AlphabetKeys.A);
+                    if (!keysPressed.Contains(AlphabetKeys.A)) {
+                        keysPressed.Add(AlphabetKeys.A);
+                    }
 
                     break;
                 case Keys.S:
 
-                    keysPressed.Add(AlphabetKeys.S);
+                    if (!keysPressed.Contains(AlphabetKeys.S)) {
+                        keysPressed.Add(AlphabetKeys.S);
+                    }
 
                     break;
                 case Keys.D:
 
-                    keysPressed.Add(AlphabetKeys.D);
+                    if (!keysPressed.Contains(AlphabetKeys.D)) {
+                        keysPressed.Add(AlphabetKeys.D);
+                    }
 
                     break;
                 case Keys.F:
 
-                    keysPressed.Add(AlphabetKeys.F);
+                    if (!keysPressed.Contains(AlphabetKeys.F)) {
+                        keysPressed.Add(AlphabetKeys.F);
+                    }
 
                     break;
                 case Keys.G:
 
-                    keysPressed.Add(AlphabetKeys.G);
+                    if (!keysPressed.Contains(AlphabetKeys.G)) {
+                        keysPressed.Add(AlphabetKeys.G);
+                    }
 
                     break;
                 case Keys.H:
 
-                    keysPressed.Add(AlphabetKeys.H);
+                    if (!keysPressed.Contains(AlphabetKeys.H)) {
+                        keysPressed.Add(AlphabetKeys.H);
+                    }
 
                     break;
                 case Keys.J:
 
-                    keysPressed.Add(AlphabetKeys.J);
+                    if (!keysPressed.Contains(AlphabetKeys.J)) {
+                        keysPressed.Add(AlphabetKeys.J);
+                    }
 
                     break;
                 case Keys.K:
 
-                    keysPressed.Add(AlphabetKeys.K);
+                    if (!keysPressed.Contains(AlphabetKeys.K)) {
+                        keysPressed.Add(AlphabetKeys.K);
+                    }
 
                     break;
                 case Keys.L:
 
-                    keysPressed.Add(AlphabetKeys.L);
+                    if (!keysPressed.Contains(AlphabetKeys.L)) {
+                        keysPressed.Add(AlphabetKeys.L);
+                    }
 
                     break;
                 case Keys.Q:
 
-                    keysPressed.Add(AlphabetKeys.Q);
+                    if (!keysPressed.Contains(AlphabetKeys.Q)) {
+                        keysPressed.Add(AlphabetKeys.Q);
+                    }
 
                     break;
                 case Keys.W:
 
-                    keysPressed.Add(AlphabetKeys.W);
+                    if (!keysPressed.Contains(AlphabetKeys.W)) {
+                        keysPressed.Add(AlphabetKeys.W);
+                    }
 
                     break;
                 case Keys.E:
 
-                    keysPressed.Add(AlphabetKeys.E);
+                    if (!keysPressed.Contains(AlphabetKeys.E)) {
+                        keysPressed.Add(AlphabetKeys.E);
+                    }
 
                     break;
                 case Keys.R:
 
-                    keysPressed.Add(AlphabetKeys.R);
+                    if (!keysPressed.Contains(AlphabetKeys.R)) {
+                        keysPressed.Add(AlphabetKeys.R);
+                    }
 
                     break;
                 case Keys.T:
 
-                    keysPressed.Add(AlphabetKeys.T);
+                    if (!keysPressed.Contains(AlphabetKeys.T)) {
+                        keysPressed.Add(AlphabetKeys.T);
+                    }
 
                     break;
                 case Keys.Y:
 
-                    keysPressed.Add(AlphabetKeys.Y);
+                    if (!keysPressed.Contains(AlphabetKeys.Y)) {
+                        keysPressed.Add(AlphabetKeys.Y);
+                    }
 
                     break;
                 case Keys.U:
 
-                    keysPressed.Add(AlphabetKeys.U);
+                    if (!keysPressed.Contains(AlphabetKeys.U)) {
+                        keysPressed.Add(AlphabetKeys.U);
+                    }
 
                     break;
                 case Keys.I:
 
-                    keysPressed.Add(AlphabetKeys.I);
+                    if (!keysPressed.Contains(AlphabetKeys.I)) {
+                        keysPressed.Add(AlphabetKeys.I);
+                    }
 
                     break;
                 case Keys.O:
 
-                    keysPressed.Add(AlphabetKeys.O);
+                    if (!keysPressed.Contains(AlphabetKeys.O)) {
+                        keysPressed.Add(AlphabetKeys.O);
+                    }
                     break;
                 case Keys.P:
 
-                    keysPressed.Add(AlphabetKeys.P);
+                    if (!keysPressed.Contains(AlphabetKeys.P)) {
+                        keysPressed.Add(AlphabetKeys.P);
+                    }
                     break;
                 default:
                     break;
@@ -577,130 +678,179 @@ namespace TutorialSynth {
 
             switch (e.KeyCode) {
                 case Keys.Z:
-                    // Assuming nothing weird is going on
-
-                    //keysPressed = keysPressed.Where(val => val != (int)PianoKeys.A0).ToArray();
-                    keysPressed.Remove(AlphabetKeys.Z);
+                    
+                    if(keysPressed.Contains(AlphabetKeys.Z)) {
+                        keysPressed.Remove(AlphabetKeys.Z);
+                    }
 
                     break;
                 case Keys.X:
 
-                    //keysPressed = keysPressed.Where(val => val != (int)PianoKeys.A1).ToArray();
-                    keysPressed.Remove(AlphabetKeys.X);
+                    if (keysPressed.Contains(AlphabetKeys.X)) {
+                        keysPressed.Remove(AlphabetKeys.X);
+                    }
 
                     break;
                 case Keys.C:
 
-                    keysPressed.Remove(AlphabetKeys.C);
+                    if (keysPressed.Contains(AlphabetKeys.C)) {
+                        keysPressed.Remove(AlphabetKeys.C);
+                    }
 
                     break;
                 case Keys.V:
 
-                    keysPressed.Remove(AlphabetKeys.V);
+                    if (keysPressed.Contains(AlphabetKeys.V)) {
+                        keysPressed.Remove(AlphabetKeys.V);
+                    }
 
                     break;
                 case Keys.B:
 
-                    keysPressed.Remove(AlphabetKeys.B);
+                    if (keysPressed.Contains(AlphabetKeys.B)) {
+                        keysPressed.Remove(AlphabetKeys.B);
+                    }
 
                     break;
                 case Keys.N:
 
-                    keysPressed.Remove(AlphabetKeys.N);
+                    if (keysPressed.Contains(AlphabetKeys.N)) {
+                        keysPressed.Remove(AlphabetKeys.N);
+                    }
                     break;
                 case Keys.M:
 
-                    keysPressed.Remove(AlphabetKeys.M);
+                    if (keysPressed.Contains(AlphabetKeys.M)) {
+                        keysPressed.Remove(AlphabetKeys.M);
+                    }
 
                     break;
                 case Keys.A:
 
-                    keysPressed.Remove(AlphabetKeys.A);
+                    if (keysPressed.Contains(AlphabetKeys.A)) {
+                        keysPressed.Remove(AlphabetKeys.A);
+                    }
 
                     break;
                 case Keys.S:
 
-                    keysPressed.Remove(AlphabetKeys.S);
+                    if (keysPressed.Contains(AlphabetKeys.S)) {
+                        keysPressed.Remove(AlphabetKeys.S);
+                    }
 
                     break;
                 case Keys.D:
 
-                    keysPressed.Remove(AlphabetKeys.D);
+                    if (keysPressed.Contains(AlphabetKeys.D)) {
+                        keysPressed.Remove(AlphabetKeys.D);
+                    }
 
                     break;
                 case Keys.F:
 
-                    keysPressed.Remove(AlphabetKeys.F);
+                    if (keysPressed.Contains(AlphabetKeys.F)) {
+                        keysPressed.Remove(AlphabetKeys.F);
+                    }
 
                     break;
                 case Keys.G:
 
-                    keysPressed.Remove(AlphabetKeys.G);
+                    if (keysPressed.Contains(AlphabetKeys.G)) {
+                        keysPressed.Remove(AlphabetKeys.G);
+                    }
 
                     break;
                 case Keys.H:
 
-                    keysPressed.Remove(AlphabetKeys.H);
+                    if (keysPressed.Contains(AlphabetKeys.H)) {
+                        keysPressed.Remove(AlphabetKeys.H);
+                    }
 
                     break;
                 case Keys.J:
 
-                    keysPressed.Remove(AlphabetKeys.J);
+                    if (keysPressed.Contains(AlphabetKeys.J)) {
+                        keysPressed.Remove(AlphabetKeys.J);
+                    }
                     break;
                 case Keys.K:
 
-                    keysPressed.Remove(AlphabetKeys.K);
+                    if (keysPressed.Contains(AlphabetKeys.K)) {
+                        keysPressed.Remove(AlphabetKeys.K);
+                    }
 
                     break;
                 case Keys.L:
 
-                    keysPressed.Remove(AlphabetKeys.L);
+                    if (keysPressed.Contains(AlphabetKeys.L)) {
+                        keysPressed.Remove(AlphabetKeys.L);
+                    }
 
                     break;
                 case Keys.Q:
 
-                    keysPressed.Remove(AlphabetKeys.Q);
+                    if (keysPressed.Contains(AlphabetKeys.Q)) {
+                        keysPressed.Remove(AlphabetKeys.Q);
+                    }
 
                     break;
                 case Keys.W:
 
-                    keysPressed.Remove(AlphabetKeys.W);
+                    if (keysPressed.Contains(AlphabetKeys.W)) {
+                        keysPressed.Remove(AlphabetKeys.W);
+                    }
 
                     break;
                 case Keys.E:
 
-                    keysPressed.Remove(AlphabetKeys.E);
+                    if (keysPressed.Contains(AlphabetKeys.E)) {
+                        keysPressed.Remove(AlphabetKeys.E);
+                    }
                     
                     break;
                 case Keys.R:
 
-                    keysPressed.Remove(AlphabetKeys.R);
+                    if (keysPressed.Contains(AlphabetKeys.R)) {
+                        keysPressed.Remove(AlphabetKeys.R);
+                    }
                     break;
                 case Keys.T:
 
-                    keysPressed.Remove(AlphabetKeys.T);
+                    if (keysPressed.Contains(AlphabetKeys.T)) {
+                        keysPressed.Remove(AlphabetKeys.T);
+                    }
                     break;
                 case Keys.Y:
-                    keysPressed.Remove(AlphabetKeys.Y);
+                    if (keysPressed.Contains(AlphabetKeys.Y)) {
+                        keysPressed.Remove(AlphabetKeys.Y);
+                    }
                     break;
                 case Keys.U:
 
-                    keysPressed.Remove(AlphabetKeys.U);
+                    if (keysPressed.Contains(AlphabetKeys.U)) {
+                        keysPressed.Remove(AlphabetKeys.U);
+                    }
 
                     break;
                 case Keys.I:
 
-                    keysPressed.Remove(AlphabetKeys.I);
+                    if (keysPressed.Contains(AlphabetKeys.I)) {
+                        keysPressed.Remove(AlphabetKeys.I);
+                    }
 
                     break;
                 case Keys.O:
 
-                    keysPressed.Remove(AlphabetKeys.O);
+                    if (keysPressed.Contains(AlphabetKeys.O)) {
+                        keysPressed.Remove(AlphabetKeys.O);
+                    }
 
                     break;
                 case Keys.P:
 
-                    keysPressed.Remove(AlphabetKeys.P);
+                    if (keysPressed.Contains(AlphabetKeys.P)) {
+                        keysPressed.Remove(AlphabetKeys.P);
+                    }
 
                     break;
                 default:
@@ -709,41 +859,36 @@ namespace TutorialSynth {
 
         }
 
+        private void timer1_Tick(object sender, EventArgs e) {
+
+            //progressBar1.Value = comboBox1.SelectedItem
+
+            if(comboBox1.SelectedItem != null) {
+                var device = (MMDevice)comboBox1.SelectedItem;
+                progressBar1.Value = (int) Math.Round(device.AudioMeterInformation.MasterPeakValue * 100);
+            }
+
+
+            label1.Text = progressBar1.Value.ToString();
+
+            string myKeysPressed = "[ ";
+
+            for(int a = 0; a < keysPressed.Count; a++) {
+                myKeysPressed += keysPressed[a] + " ";
+            }
+
+            label2.Text = myKeysPressed + "]";
+
+            // Now for each keyboard key, add waves for each key pressed down to our wave data
+
+
+        }
+
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e) {
-            // After we change our selection, change focus to another object to avoid typing into it
-            // when using the synthesizer
+
             this.ActiveControl = label1;
 
         }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void timer1_Tick(object sender, EventArgs e) {
-
-            if (comboBox1.SelectedItem != null) {
-                var singledevice = (MMDevice)comboBox1.SelectedItem;
-
-                // Change 
-                progressBar1.Value = (int)(singledevice.AudioMeterInformation.MasterPeakValue * 100);
-                label1.Text = progressBar1.Value.ToString();
-
-                // *** SIDE NOTE ***
-                // tYPING LIKE THIS AND FIXING IT SOMEHOW. // ==> like this..
-                // Tying like CIA AND THEN THIS HAPPENS. // ==> CIA and then this happen
-                // everything highlighted has all capatalization reversed 100%
-
-            }
-
-        }
-
-        private void TutorialSynthesizer_Load(object sender, EventArgs e) {
-
-        }
-
-        #endregion
     }
 
 
